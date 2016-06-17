@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Speech API</title>
+  <link rel="stylesheet" href="./styles.css" />
+
+</head>
+<body>
+  <p>This is a Speech API presentation</p>
+  <p>Slide number: <span id="textSlideNumber">1</span></p>
+  <div class="controls">
+    <button onclick="playPrev()" title="play prev"><i class="material-icons">fast_rewind</i></button>
+    <button onclick="pause()" title="pause"><i class="material-icons">pause</i></button>
+    <button onclick="resume()" title="resume"><i class="material-icons">play_arrow</i></button>
+    <button onclick="replay()" title="replay"><i class="material-icons">replay</i></button>
+    <button onclick="stop()" title="stop"><i class="material-icons">stop</i></button>
+    <button onclick="playNext()" title="play prev"><i class="material-icons">fast_forward</i></button>
+    <input type="text" name="slideNum" id="slideNum" maxlength="1"/>
+    <button onclick="playNumber()" title="play number"><i class="material-icons">play_circle_outline</i></button>
+  </div>
+  <div id="textDisplay"></div>
+
+  <script type="text/javascript">
+    const speech = new SpeechSynthesisUtterance()
+    
+    const textDisplay = document.getElementById('textDisplay')
+    const textSlideNumber = document.getElementById('textSlideNumber')
+
+    const textSlides = []
+    let slideNumber = 1
+    textSlides[1] = `
+      Je m'appelle Antoine Le Taxin. Je suis développeur full stack javascript chez Xébia depuis deux ans.
+      Je ne peux pas parler pour le moment, la speech a p i parlera donc à ma place, piloté en JS.
+    `
+    textSlides[2] = `
+      Je vais vous parler de Dockeur, et comment on peut l'utiliser dans une application fronte pour automatiser
+      le lancement des tests... du builde... puis fournir une version conteneurisée de l'application.
+    `
+    textSlides[3] = `
+      La technologie du conteneur n’est pas nouvelle, elle date des années 2000, notamment avec les Linux Containeurs ou « L C X ».
+      Dockeur est une surcouche qui rend le développement et le déploiement des conteneurs beaucoup plus simple tout en les standardisant.  
+    `
+    textSlides[4] = `
+      À l'opposé d’une machines virtuelles, un conteneur ne requiert aucun système d'exploitation séparé et n'en fournit aucun.
+      Il s'appuie plutôt sur les fonctionnalités du noyau et utilise l'isolation de ressources (CPU, mémoire, I/O, connexions réseau etc.)
+      ainsi que des espaces de noms séparés pour isoler le système d'exploitation tel que vu par l'application.
+      C'est pourquoi, sur un OS différent de Linux, il nous faut une machine virtuelle pour faire tourner Dockeur...
+    `
+
+    
+    speech.onend = function(event) { 
+      console.log('Finished in ' + event.elapsedTime + ' seconds.') 
+    }
+    
+    function switchSlide() {
+      mywindow.location.replace('https://docs.google.com/presentation/d/1xY_XDiK6Cb0fpwF-eiSRH8Z1_O_oFkk5olROQ7LMqCw/edit#slide=id.g1143a8eae7_0_13')
+      mywindow.focus()
+    }
+    
+    function play() {
+      slideNumber = slideNumber < 1 ? 1 : slideNumber || 1
+      speech.rate = 1
+      speech.lang = 'fr-FR'
+      speech.text = textSlides[slideNumber]
+      textDisplay.innerText = speech.text
+      textSlideNumber.innerText = slideNumber
+      speechSynthesis.speak(speech)
+    }
+    function stop() {
+      speechSynthesis.cancel()
+    }
+    function replay() {
+      stop()
+      play()
+    } 
+    function pause() {
+      speechSynthesis.pause()
+    }
+    function resume() {
+      speechSynthesis.resume()
+    }
+    function playPrev() {
+      stop()
+      slideNumber--
+      play()
+    }
+    function playNext() {
+      stop()
+      slideNumber++
+      play()
+    }
+    function playNumber() {
+      stop()
+      slideNumber = parseInt(document.getElementById('slideNum').value || 0)
+      play()
+    }
+  </script>
+</body>
+</html>
