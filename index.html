@@ -31,14 +31,15 @@
     let slideNumber = 1
     textSlides[1] = `
       Je m'appelle Antoine Le Taxin. Je suis développeur full stack javascript chez Xébia depuis deux ans.
-      Je ne peux pas parler pour le moment, la speech a p i parlera donc à ma place, piloté en JS.
+      Je ne peux pas parler pour le moment, c'est pourquoi la speech a p i parlera à ma place, piloté en JS.
+      Ca va être bizzare, je vous préviens.
     `
     textSlides[2] = `
       Je vais vous parler de Dockeur, et comment on peut l'utiliser dans une application fronte pour automatiser
       le lancement des tests... du builde... puis fournir une version conteneurisée de l'application.
     `
     textSlides[3] = `
-      La technologie du conteneur n’est pas nouvelle, elle date des années 2000, notamment avec les Linux Containeurs ou « L C X ».
+      La technologie du conteneur n’est pas nouvelle, elle date des années 2000, notamment avec les Linux Containers ou « LCX » et les namespaces.
       Dockeur est une surcouche qui rend le développement et le déploiement des conteneurs beaucoup plus simple tout en les standardisant.  
     `
     textSlides[4] = `
@@ -46,6 +47,45 @@
       Il s'appuie plutôt sur les fonctionnalités du noyau et utilise l'isolation de ressources (CPU, mémoire, I/O, connexions réseau etc.)
       ainsi que des espaces de noms séparés pour isoler le système d'exploitation tel que vu par l'application.
       C'est pourquoi, sur un OS différent de Linux, il nous faut une machine virtuelle pour faire tourner Dockeur...
+      Dockeur communique avec le noyau Linux par socket Unix ou TCP (d'une VM par exemple.).
+    `
+    textSlides[5] = `
+      Les étapes nécessaires :
+      Créer une image de build avec la bonne version de node.
+      Copier nos sources dans le conteneur de build.
+      Installer nos dépendances dans le conteneur de build.
+      Jouer dans le conteneur de build les tests.
+      Si aucune erreur, builder l’application.
+      Copier les fichiers buildés dans un dossier qui fourni le serveur.
+      Packager l’application dans une autre image avec le serveur.
+      Cette dernière image Dockeur pourra être lancée via Dockeur (dockeur run ou dockeur-compose).
+    `
+    textSlides[6] = `
+      D’abord il nous faut une image builder.
+      Un fichier.sh pour simplifier l’enchaînement des commandes npm dans le conteneur (npm clean, install, test, etc.) et éviter la création de trop de layers (un par commande, commité sur l’image d’origine à la volée).
+      Un Dockeur file qui donne à Dockeur les indications nécessaires pour le build de l’image.
+    `
+    textSlides[7] = `
+      Dockeurfile de notre builder en détail.
+    `
+    textSlides[8] = `
+      Puis une image avec application et serveur.
+      Dans le dossier où nous avons copié le dossier dist généré avec le builder, nous ajoutons :
+      Un package.json avec notre dépendance à http-server (paquet npm choisi pour faire notre serveur http).
+      Un Dockeurfile qui donne à Dockeur les indications nécessaires pour le build de l’image finale.
+    `
+    textSlides[9] = `
+      Enfin, un script pour lancer les tâches dockeur.
+    `
+    textSlides[10] = `
+      On peut maintenant démarrer notre image.
+    `
+    textSlides[11] = `
+      Conclusion.
+      Dockeur permet de builder une application front sans se souci des softs installés sur la machine (sur un CI par exemple), d’y jouer les tests et d’en resortir uniquement la partie utile (ici /dist).
+      Il peut être utile pour tester une montée de version de node facilement.
+      Le build est reproductible et aura toujours le même comportement (est indépendant de la machine sur laquelle le build est lancé).
+      L’image finale d’une application peut être utilisée par n’importe quelle plate forme capable de faire tourner Dockeur (aussi bien localement, que sur du cloud, etc.) et est donc plus facile à déployer.
     `
 
     
@@ -63,6 +103,9 @@
       speech.rate = 1
       speech.lang = 'fr-FR'
       speech.text = textSlides[slideNumber]
+      speech.onmark = function(event) {
+        console.log('event', event)
+      }
       textDisplay.innerText = speech.text
       textSlideNumber.innerText = slideNumber
       speechSynthesis.speak(speech)
@@ -78,7 +121,11 @@
       speechSynthesis.pause()
     }
     function resume() {
-      speechSynthesis.resume()
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume()
+      } else {
+        play()
+      }
     }
     function playPrev() {
       stop()
